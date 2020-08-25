@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Plugin Name: ElasticPress
  * Description: A fast and flexible search and query engine for WordPress.
- * Version:     3.4.3
+ * Version:     3.4.4
  * Author:      10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -21,14 +22,14 @@ namespace ElasticPress;
 
 use \WP_CLI as WP_CLI;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'EP_URL', plugin_dir_url( __FILE__ ) );
-define( 'EP_PATH', plugin_dir_path( __FILE__ ) );
-define( 'EP_FILE', plugin_basename( __FILE__ ) );
-define( 'EP_VERSION', '3.4.3' );
+define('EP_URL', plugin_dir_url(__FILE__));
+define('EP_PATH', plugin_dir_path(__FILE__));
+define('EP_FILE', plugin_basename(__FILE__));
+define('EP_VERSION', '3.4.4');
 
 /**
  * PSR-4-ish autoloading
@@ -36,26 +37,26 @@ define( 'EP_VERSION', '3.4.3' );
  * @since 2.6
  */
 spl_autoload_register(
-	function( $class ) {
-			// project-specific namespace prefix.
-			$prefix = 'ElasticPress\\';
+	function ($class) {
+		// project-specific namespace prefix.
+		$prefix = 'ElasticPress\\';
 
-			// base directory for the namespace prefix.
-			$base_dir = __DIR__ . '/includes/classes/';
+		// base directory for the namespace prefix.
+		$base_dir = __DIR__ . '/includes/classes/';
 
-			// does the class use the namespace prefix?
-			$len = strlen( $prefix );
+		// does the class use the namespace prefix?
+		$len = strlen($prefix);
 
-		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+		if (strncmp($prefix, $class, $len) !== 0) {
 			return;
 		}
 
-			$relative_class = substr( $class, $len );
+		$relative_class = substr($class, $len);
 
-			$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+		$file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
 
-			// if the file exists, require it.
-		if ( file_exists( $file ) ) {
+		// if the file exists, require it.
+		if (file_exists($file)) {
 			require $file;
 		}
 	}
@@ -70,17 +71,17 @@ spl_autoload_register(
  *
  * @since  2.2
  */
-define( 'EP_ES_VERSION_MAX', '7.5' );
-define( 'EP_ES_VERSION_MIN', '5.0' );
+define('EP_ES_VERSION_MAX', '7.5');
+define('EP_ES_VERSION_MIN', '5.0');
 
 require_once __DIR__ . '/includes/compat.php';
 require_once __DIR__ . '/includes/utils.php';
 
 // Define a constant if we're network activated to allow plugin to respond accordingly.
-$network_activated = Utils\is_network_activated( EP_FILE );
+$network_activated = Utils\is_network_activated(EP_FILE);
 
-if ( $network_activated ) {
-	define( 'EP_IS_NETWORK', true );
+if ($network_activated) {
+	define('EP_IS_NETWORK', true);
 }
 
 /**
@@ -88,13 +89,14 @@ if ( $network_activated ) {
  *
  * @return void
  */
-function register_indexable_posts() {
+function register_indexable_posts()
+{
 	global $wp_version;
 
 	/**
 	 * Handle indexables
 	 */
-	Indexables::factory()->register( new Indexable\Post\Post() );
+	Indexables::factory()->register(new Indexable\Post\Post());
 
 	/**
 	 * Handle features
@@ -127,13 +129,13 @@ function register_indexable_posts() {
 		new Feature\Documents\Documents()
 	);
 
-	if ( version_compare( $wp_version, '5.3', '>=' ) || 0 === stripos( $wp_version, '5.3-' ) ) {
+	if (version_compare($wp_version, '5.3', '>=') || 0 === stripos($wp_version, '5.3-')) {
 		Features::factory()->register_feature(
 			new Feature\Terms\Terms()
 		);
 	}
 
-	if ( version_compare( $wp_version, '5.1', '>=' ) || 0 === stripos( $wp_version, '5.1-' ) ) {
+	if (version_compare($wp_version, '5.1', '>=') || 0 === stripos($wp_version, '5.1-')) {
 		Features::factory()->register_feature(
 			new Feature\Users\Users()
 		);
@@ -143,7 +145,7 @@ function register_indexable_posts() {
 		new Feature\SearchOrdering\SearchOrdering()
 	);
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\register_indexable_posts' );
+add_action('plugins_loaded', __NAMESPACE__ . '\register_indexable_posts');
 
 /**
  * Set the availability of dashboard sync functionality. Defaults to true (enabled).
@@ -153,8 +155,8 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\register_indexable_posts' );
  *
  * @since  2.3
  */
-if ( ! defined( 'EP_DASHBOARD_SYNC' ) ) {
-	define( 'EP_DASHBOARD_SYNC', true );
+if (!defined('EP_DASHBOARD_SYNC')) {
+	define('EP_DASHBOARD_SYNC', true);
 }
 
 /**
@@ -176,8 +178,8 @@ Dashboard\setup();
 /**
  * WP CLI Commands
  */
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	WP_CLI::add_command( 'elasticpress', __NAMESPACE__ . '\Command' );
+if (defined('WP_CLI') && WP_CLI) {
+	WP_CLI::add_command('elasticpress', __NAMESPACE__ . '\Command');
 }
 
 /**
@@ -185,26 +187,27 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
  *
  * @since  2.2
  */
-function handle_upgrades() {
-	if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+function handle_upgrades()
+{
+	if (!is_admin() || defined('DOING_AJAX')) {
 		return;
 	}
 
-	if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-		$last_sync = get_site_option( 'ep_last_sync', 'never' );
+	if (defined('EP_IS_NETWORK') && EP_IS_NETWORK) {
+		$last_sync = get_site_option('ep_last_sync', 'never');
 	} else {
-		$last_sync = get_option( 'ep_last_sync', 'never' );
+		$last_sync = get_option('ep_last_sync', 'never');
 	}
 
 	// No need to upgrade since we've never synced.
-	if ( empty( $last_sync ) || 'never' === $last_sync ) {
+	if (empty($last_sync) || 'never' === $last_sync) {
 		return;
 	}
 
-	if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-		$old_version = get_site_option( 'ep_version', false );
+	if (defined('EP_IS_NETWORK') && EP_IS_NETWORK) {
+		$old_version = get_site_option('ep_version', false);
 	} else {
-		$old_version = get_option( 'ep_version', false );
+		$old_version = get_option('ep_version', false);
 	}
 
 	/**
@@ -228,44 +231,45 @@ function handle_upgrades() {
 
 	$need_upgrade_sync = false;
 
-	if ( false !== $old_version ) {
-		$last_reindex_version = $reindex_versions[ count( $reindex_versions ) - 1 ];
+	if (false !== $old_version) {
+		$last_reindex_version = $reindex_versions[count($reindex_versions) - 1];
 
-		if ( -1 === version_compare( $old_version, $last_reindex_version ) && 0 <= version_compare( EP_VERSION, $last_reindex_version ) ) {
+		if (-1 === version_compare($old_version, $last_reindex_version) && 0 <= version_compare(EP_VERSION, $last_reindex_version)) {
 			$need_upgrade_sync = true;
 		}
 	}
 
-	if ( $need_upgrade_sync ) {
-		if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-			update_site_option( 'ep_need_upgrade_sync', true );
+	if ($need_upgrade_sync) {
+		if (defined('EP_IS_NETWORK') && EP_IS_NETWORK) {
+			update_site_option('ep_need_upgrade_sync', true);
 		} else {
-			update_option( 'ep_need_upgrade_sync', true );
+			update_option('ep_need_upgrade_sync', true);
 		}
 	}
 
-	if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-		update_site_option( 'ep_version', sanitize_text_field( EP_VERSION ) );
+	if (defined('EP_IS_NETWORK') && EP_IS_NETWORK) {
+		update_site_option('ep_version', sanitize_text_field(EP_VERSION));
 	} else {
-		update_option( 'ep_version', sanitize_text_field( EP_VERSION ) );
+		update_option('ep_version', sanitize_text_field(EP_VERSION));
 	}
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\handle_upgrades', 5 );
+add_action('plugins_loaded', __NAMESPACE__ . '\handle_upgrades', 5);
 
 /**
  * Load text domain and handle debugging
  *
  * @since  2.2
  */
-function setup_misc() {
-	load_plugin_textdomain( 'elasticpress', false, basename( __DIR__ ) . '/lang' ); // Load any available translations first.
+function setup_misc()
+{
+	load_plugin_textdomain('elasticpress', false, basename(__DIR__) . '/lang'); // Load any available translations first.
 
-	if ( is_user_logged_in() && ! defined( 'WP_EP_DEBUG' ) ) {
+	if (is_user_logged_in() && !defined('WP_EP_DEBUG')) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		define( 'WP_EP_DEBUG', is_plugin_active( 'debug-bar-elasticpress/debug-bar-elasticpress.php' ) );
+		define('WP_EP_DEBUG', is_plugin_active('debug-bar-elasticpress/debug-bar-elasticpress.php'));
 	}
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\setup_misc' );
+add_action('plugins_loaded', __NAMESPACE__ . '\setup_misc');
 
 /**
  * Fires after Elasticpress plugin is loaded
@@ -273,4 +277,4 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\setup_misc' );
  * @since  2.0
  * @hook elasticpress_loaded
  */
-do_action( 'elasticpress_loaded' );
+do_action('elasticpress_loaded');

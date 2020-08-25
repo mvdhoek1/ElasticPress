@@ -43,6 +43,11 @@ Please refer to [Github](https://github.com/10up/ElasticPress) for detailed usag
 
 == Changelog ==
 
+= 3.4.4 =
+
+Bug Fixes:
+* Add required (since WP 5.5) permission callback to register_rest_route() methods.
+
 = 3.4.3 =
 
 Enhancements:
